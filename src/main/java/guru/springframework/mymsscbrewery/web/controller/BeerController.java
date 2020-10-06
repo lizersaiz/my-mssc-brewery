@@ -2,6 +2,8 @@ package guru.springframework.mymsscbrewery.web.controller;
 
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,13 +34,14 @@ public class BeerController {
 
 	@GetMapping({"/{beerId}"})
 	public ResponseEntity<BeerDto> getBeer(@PathVariable("beerId") UUID beerId) {
-		
-		//return new ResponseEntity<>(BeerDto.builder().build(), HttpStatus.OK);
+
 		return new ResponseEntity<>(beerService.getBeerById(beerId), HttpStatus.OK);
 	}
 	
+	// @Valid annotation forces validation annotations on BeerDto to resolve
+	// If validation does not end OK, it will return 400 error
 	@PostMapping
-	public ResponseEntity handlePost(@RequestBody BeerDto beerDto) {
+	public ResponseEntity handlePost (@Valid @RequestBody BeerDto beerDto) {
 		
 		BeerDto savedDto = beerService.saveNewBeer(beerDto);
 		
@@ -50,7 +53,7 @@ public class BeerController {
 	}
 	
 	@PutMapping({"/{beerId}"})
-	public ResponseEntity handleUpdate(@PathVariable("beerId") UUID beerId, @RequestBody BeerDto beerDto) {
+	public ResponseEntity handleUpdate(@PathVariable("beerId") UUID beerId, @Valid @RequestBody BeerDto beerDto) {
 		
 		beerService.updateBeer(beerId, beerDto);
 		

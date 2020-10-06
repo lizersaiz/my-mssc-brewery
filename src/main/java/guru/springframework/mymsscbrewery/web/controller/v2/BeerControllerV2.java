@@ -1,11 +1,19 @@
 package guru.springframework.mymsscbrewery.web.controller.v2;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import guru.springframework.mymsscbrewery.services.v2.BeerServiceV2;
 import guru.springframework.mymsscbrewery.web.model.v2.BeerDtoV2;
+
+//allows to use validation annotations in this class (example: handlePost method, @NotNull)
+@Validated
 
 @RequestMapping("/api/v2/beer")
 @RestController
@@ -37,7 +48,7 @@ public class BeerControllerV2 {
 	}
 	
 	@PostMapping
-	public ResponseEntity handlePost(@RequestBody BeerDtoV2 beerDto) {
+	public ResponseEntity handlePost(@Valid @NotNull @RequestBody BeerDtoV2 beerDto) {
 		
 		BeerDtoV2 savedDto = beerService.saveNewBeer(beerDto);
 		
@@ -49,7 +60,7 @@ public class BeerControllerV2 {
 	}
 	
 	@PutMapping({"/{beerId}"})
-	public ResponseEntity handleUpdate(@PathVariable("beerId") UUID beerId, @RequestBody BeerDtoV2 beerDto) {
+	public ResponseEntity handleUpdate(@PathVariable("beerId") UUID beerId, @Valid @RequestBody BeerDtoV2 beerDto) {
 		
 		beerService.updateBeer(beerId, beerDto);
 		
@@ -61,5 +72,22 @@ public class BeerControllerV2 {
 	public void deleteBeer(@PathVariable("beerId") UUID beerId) {
 		
 		beerService.deleteById(beerId);
+	}
+	
+	//adding method validation
+	//this annotation will trigger the following method when a certain type of exception is triggered
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<List> validationErrorHandler(ConstraintViolationException e) {
+		
+		//get the list of errors
+		List<String> errors = new ArrayList<>(e.getConstraintViolations().size());
+		
+		e.getConstraintViolations().forEach(constraintViolation -> {
+			
+			errors.add(constraintViolation.getPropertyPath() + ":" + constraintViolation.getMessage());
+		});
+		
+		//return it to the consumer
+		return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 	}
 }
