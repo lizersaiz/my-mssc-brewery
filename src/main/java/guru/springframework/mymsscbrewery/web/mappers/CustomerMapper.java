@@ -5,7 +5,8 @@ import org.mapstruct.Mapper;
 import guru.springframework.mymsscbrewery.domain.Customer;
 import guru.springframework.mymsscbrewery.web.model.CustomerDto;
 
-@Mapper
+//custom type converters by using "uses" property
+@Mapper(uses = {DateMapper.class})
 public interface CustomerMapper {
 
 	CustomerDto customerToCustomerDto(Customer customer);

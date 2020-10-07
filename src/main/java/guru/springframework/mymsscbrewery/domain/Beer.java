@@ -1,5 +1,6 @@
 package guru.springframework.mymsscbrewery.domain;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
@@ -22,4 +23,7 @@ public class Beer {
 	private String beerName;
 	private BeerStyleEnum beerStyle;
 	private Long upc;
+
+	private OffsetDateTime createdDate;
+	private OffsetDateTime lastUpdatedDate;
 }
